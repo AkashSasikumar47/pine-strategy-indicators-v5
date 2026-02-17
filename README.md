@@ -1,92 +1,119 @@
-<div>
-  <h1>📈 Custom Strategy Indicators v1</h1>
-  <p>Welcome to the Custom Strategy Indicators repository! In the fast-paced world of stock trading, having the right tools can make all the difference. These technical indicators are designed to provide actionable insights, empowering you to make smarter decisions and optimize your trading strategies.</p>
-</div>
+# Pine Strategy Indicators v5
 
-## 📈 Indicators Included
+## Overview
 
-- 💹 **Relative Momentum Index (RMI)**
-- 📈 **Adaptive Moving Average (AMA)**
-- 🌀 **Supertrend Indicator**
-- ⛔ **Chandelier Exit**
-- 📊 **Trend Strength Index (TSI)**
+A collection of five Pine Script technical indicators for TradingView, designed for trend analysis, momentum measurement, and dynamic stop-loss management. These indicators utilize volatility-based calculations, adaptive algorithms, and momentum oscillators to provide actionable trading signals.
 
-## 📋 Indicator Descriptions
+## Included Indicators
 
-### 💹 Relative Momentum Index (RMI)
-![RMI Chart](images/Relative-Momentum-Index.png)
+### Supertrend Indicator
 
-The **Relative Momentum Index (RMI)** is a momentum oscillator combining elements of the Relative Strength Index (RSI) and Rate of Change (ROC). It provides a detailed view of an asset’s momentum, helping traders identify overbought or oversold conditions.
+**Purpose:** Identifies market trends and potential reversal points using volatility-based bands.
 
-**Use Case**:  
-- Overbought: RMI > 70 (potential sell signal).  
-- Oversold: RMI < 30 (potential buy signal).
+**Core Logic:** Calculates upper and lower bands using ATR (Average True Range) multiplied by a configurable factor. Supports three simultaneous Supertrend lines with independent parameters. Trend direction changes when price crosses the bands, generating buy/sell signals with visual markers.
 
-**How to Use**:
-- Buy when RMI crosses above 30 with upward momentum.
-- Sell when RMI crosses below 70 with downward momentum.
+**Key Parameters:**
 
-### 📈 Adaptive Moving Average (AMA)
-![AMA Chart](images/Adaptive-Moving-Average.png)
+- ATR Period: 10, 11, 12 (for Lines 1, 2, 3)
+- ATR Multiplier: 1.0, 2.0, 3.0 (for Lines 1, 2, 3)
+- Line Toggles: Enable/disable individual lines
 
-The **Adaptive Moving Average (AMA)** adjusts to market conditions by dynamically responding to volatility, offering smoother trend-following signals compared to traditional moving averages.
+![Supertrend Indicator](images/Supertrend-Indicator.png)
 
-**Use Case**:  
-- Identifies trend direction and adapts to changing conditions.  
-- Useful for staying in trades during trends and reacting to volatility.
+**Typical Use Case:** Follow trends by buying when price is above the Supertrend line (uptrend) and selling when price falls below it (downtrend). Multiple lines provide confirmation and varying sensitivity levels.
 
-**How to Use**:
-- Buy when the price is above the AMA (uptrend).
-- Sell when the price is below the AMA (downtrend).
+---
 
-### 🌀 Supertrend Indicator
-![Supertrend Chart](images/Supertrend-Indicator.png)
+### Adaptive Moving Average
 
-The **Supertrend Indicator** is a volatility-based tool for identifying market trends and reversals. It helps traders capitalize on price movements effectively.
+**Purpose:** Provides a dynamic moving average that adjusts smoothing based on market efficiency.
 
-**Use Case**:  
-- Indicates trends: Price above the line = uptrend; price below the line = downtrend.  
-- Highlights potential reversal points for trade exits.
+**Core Logic:** Implements Kaufman's Adaptive Moving Average (KAMA) algorithm. Calculates an efficiency ratio by comparing net price change to total volatility over a period. Adjusts the smoothing constant between fast and slow EMA alphas based on this efficiency, resulting in faster response during trending markets and slower response during choppy conditions.
 
-**How to Use**:
-- Buy when the price is above the Supertrend line.
-- Sell when the price is below the Supertrend line.
-- Use reversal points for potential trade exits or reversals.
+**Key Parameters:**
 
-### ⛔ Chandelier Exit
-![Chandelier Exit Chart](images/Chandelier-Exit.png)
+- Length: 14 (lookback period for efficiency calculation)
+- Fast EMA Length: 2 (responsive smoothing constant)
+- Slow EMA Length: 30 (conservative smoothing constant)
+- Highlight Movements: Color-coded trend direction
 
-The **Chandelier Exit** is a volatility-based stop-loss indicator. It adjusts based on market volatility, helping traders protect positions from adverse price swings.
+![Adaptive Moving Average](images/Adaptive-Moving-Average.png)
 
-**Use Case**:  
-- Dynamically sets stop-loss levels based on volatility.  
-- Widens during high volatility to provide a buffer.
+**Typical Use Case:** Use as a dynamic trend filter that reduces whipsaws in sideways markets while remaining responsive to genuine trends. Price above AMA suggests uptrend; price below suggests downtrend.
 
-**How to Use**:
-- Set stop-loss at the Chandelier Exit value.
-- Adjust as volatility changes.
-- Protect positions from sudden price drops.
+---
 
-### 📊 Trend Strength Index (TSI)
-![TSI Chart](images/Trend-Strength-Index.png)
+### Relative Momentum Index
 
-The **Trend Strength Index (TSI)** measures trend strength by analyzing the interaction of price and volume. It provides insights into trend momentum and potential reversals.
+**Purpose:** Measures momentum strength by analyzing price changes over multiple periods rather than single-period shifts.
 
-**Use Case**:  
-- Rising TSI = strong trend.  
-- Declining TSI = weakening trend or potential reversal.
+**Core Logic:** Similar to RSI but replaces single-period price changes with N-period momentum changes. Calculates the ratio of average upward momentum to average downward momentum over a specified length, then normalizes to a 0-100 scale. Uses RMA (Running Moving Average) for smoothing.
 
-**How to Use**:
-- Buy during a rising TSI indicating a strong uptrend.
-- Be cautious or sell during a declining TSI signaling weakness.
+**Key Parameters:**
 
-## 🚀 Usage and Instructions
+- Length: 14 (RSI-style smoothing period)
+- Momentum Length: 3 (multi-period change calculation)
+- Highlight Breakouts: Visual emphasis for overbought/oversold zones
+- Overbought Level: 70
+- Oversold Level: 30
 
-To use these indicators:
-1. Open the TradingView Pine Script editor.
-2. Copy the Pine Script code of the desired indicator from this repository.
-3. Paste the code in the Pine Script editor.
-4. Customize the indicator's parameters as needed.
-5. Apply the indicator to your chart to visualize its signals.
+![Relative Momentum Index](images/Relative-Momentum-Index.png)
 
-Feel free to explore, modify, and integrate these indicators into your trading strategies. Happy trading!
+**Typical Use Case:** Identify overbought conditions (RMI > 70) suggesting potential reversals or profit-taking, and oversold conditions (RMI < 30) suggesting potential buying opportunities. Provides smoother signals than traditional RSI.
+
+---
+
+### Chandelier Exit
+
+**Purpose:** Dynamic trailing stop-loss that adjusts based on ATR to protect positions while allowing room for volatility.
+
+**Core Logic:** Sets long stops at the highest high (or highest close) minus ATR multiplied by a factor, and short stops at the lowest low (or lowest close) plus ATR multiplied by a factor. Stops only move in the direction of the trend, never against it. Direction flips when price crosses the opposite stop level.
+
+**Key Parameters:**
+
+- ATR Period: 22 (volatility measurement length)
+- ATR Multiplier: 3.0 (stop distance from extremes)
+- Use Close Price for Extremums: True/False
+- Show Buy/Sell Labels: Visual signal markers
+- Highlight State: Color-coded trend zones
+
+![Chandelier Exit](images/Chandelier-Exit.png)
+
+**Typical Use Case:** Use as a trailing stop-loss mechanism that widens during high volatility and tightens during low volatility. Automatically adjusts to market conditions, reducing the risk of premature stop-outs.
+
+---
+
+### Trend Strength Index
+
+**Purpose:** Quantifies the strength of a trend by comparing net price change to cumulative volatility.
+
+**Core Logic:** Calculates total volatility as the sum of absolute period-to-period price changes over N periods. Measures net price change from the current close to N periods ago. The TSI is the ratio of net change to total volatility, smoothed with a simple moving average. Higher values indicate strong directional movement relative to noise.
+
+**Key Parameters:**
+
+- Length: 30 (volatility and change calculation period)
+- Smoothing: 5 (SMA smoothing for primary TSI line)
+- Additional smoothing line: 100-period SMA for trend context
+
+![Trend Strength Index](images/Trend-Strength-Index.png)
+
+**Typical Use Case:** Assess whether a trend has conviction. Rising TSI confirms strong trends; declining TSI signals weakening momentum or potential consolidation. Compare short-term (5-period) and long-term (100-period) smoothing for trend context.
+
+---
+
+## How to Use
+
+1. Open TradingView and navigate to the Pine Editor
+2. Copy the desired indicator's Pine Script code from the `indicators/` folder
+3. Paste the code into the Pine Editor
+4. Click "Add to Chart" to apply the indicator
+5. Adjust parameters through the indicator settings menu as needed
+6. Save the indicator to your TradingView library for future use
+
+All indicators are compatible with Pine Script versions 3 and 4. They can be applied to any timeframe and asset class supported by TradingView.
+
+---
+
+## Disclaimer
+
+These indicators are provided for educational and informational purposes only. They do not constitute financial advice or trading recommendations. Past performance of any trading strategy or indicator does not guarantee future results. Users are responsible for their own trading decisions and risk management.
