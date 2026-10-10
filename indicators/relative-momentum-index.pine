@@ -1,0 +1,26 @@
+//@version=6
+indicator("Relative Momentum Index", "RMI", overlay = false)
+
+length = input.int(14, "Length", minval = 1)
+momentumLength = input.int(3, "Momentum Length", minval = 1)
+highlightBreakouts = input.bool(true, "Highlight Overbought/Oversold Breakouts")
+source = input.source(close, "Source")
+
+up = ta.rma(math.max(ta.change(source, momentumLength), 0), length)
+down = ta.rma(-math.min(ta.change(source, momentumLength), 0), length)
+rmi = down == 0 ? 100 : up == 0 ? 0 : 100 - 100 / (1 + up / down)
+
+overbought = 70
+oversold = 30
+transparent = color.new(color.white, 100)
+
+plot(rmi, "RMI", rmi > overbought ? #48ff00 : rmi < oversold ? #ff0000 : #000000, 2)
+maxLevel = hline(100, "Max Level", transparent, hline.style_dotted)
+overboughtLevel = hline(overbought, "Overbought Level", linestyle = hline.style_dotted)
+hline(50, "Middle Level", linestyle = hline.style_dotted)
+oversoldLevel = hline(oversold, "Oversold Level", linestyle = hline.style_dotted)
+minLevel = hline(0, "Min Level", transparent, hline.style_dotted)
+
+fill(overboughtLevel, oversoldLevel, color.new(color.purple, 95))
+fill(maxLevel, overboughtLevel, rmi > overbought and highlightBreakouts ? color.new(color.green, 90) : transparent)
+fill(minLevel, oversoldLevel, rmi < oversold and highlightBreakouts ? color.new(color.red, 90) : transparent)

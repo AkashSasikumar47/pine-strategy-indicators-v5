@@ -1,0 +1,55 @@
+//@version=6
+indicator("Supertrend", "STI", overlay = true)
+
+showLine1 = input.bool(true, "Line 1")
+atrLength1 = input.int(10, "ATR Period", minval = 1)
+multiplier1 = input.float(1.0, "ATR Multiplier", minval = 0.1)
+showLine2 = input.bool(true, "Line 2")
+atrLength2 = input.int(11, "ATR Period", minval = 1)
+multiplier2 = input.float(2.0, "ATR Multiplier", minval = 0.1)
+showLine3 = input.bool(true, "Line 3")
+atrLength3 = input.int(12, "ATR Period", minval = 1)
+multiplier3 = input.float(3.0, "ATR Multiplier", minval = 0.1)
+
+supertrend(atrLength, multiplier) =>
+    atr = ta.atr(atrLength)
+    up = hl2 - atr * multiplier
+    upPrev = up[1]
+    up := close[1] > upPrev ? math.max(up, upPrev) : up
+    down = hl2 + atr * multiplier
+    downPrev = down[1]
+    down := close[1] < downPrev ? math.min(down, downPrev) : down
+    crossedUp = ta.crossover(close, downPrev)
+    crossedDown = ta.crossunder(close, upPrev)
+    var int trend = 0
+    if crossedUp
+        trend := 1
+    if crossedDown
+        trend := -1
+    [up, down, trend]
+
+middle = plot(hl2, "Middle", display = display.none)
+
+[up1, down1, trend1] = supertrend(atrLength1, multiplier1)
+upLine1 = plot(showLine1 and trend1 == 1 ? up1 : na, "Line 1 Up", color.green, 2, plot.style_linebr)
+downLine1 = plot(showLine1 and trend1 == -1 ? down1 : na, "Line 1 Down", color.red, 2, plot.style_linebr)
+fill(upLine1, middle, color.new(color.green, 90))
+fill(downLine1, middle, color.new(color.red, 90))
+plotshape(showLine1 and trend1 == 1 and trend1[1] == -1 ? up1 : na, "Line 1 Buy", shape.circle, location.absolute, color.green, size = size.tiny)
+plotshape(showLine1 and trend1 == -1 and trend1[1] == 1 ? down1 : na, "Line 1 Sell", shape.circle, location.absolute, color.red, size = size.tiny)
+
+[up2, down2, trend2] = supertrend(atrLength2, multiplier2)
+upLine2 = plot(showLine2 and trend2 == 1 ? up2 : na, "Line 2 Up", color.green, 2, plot.style_linebr)
+downLine2 = plot(showLine2 and trend2 == -1 ? down2 : na, "Line 2 Down", color.red, 2, plot.style_linebr)
+fill(upLine2, middle, color.new(color.green, 90))
+fill(downLine2, middle, color.new(color.red, 90))
+plotshape(showLine2 and trend2 == 1 and trend2[1] == -1 ? up2 : na, "Line 2 Buy", shape.circle, location.absolute, color.green, size = size.tiny)
+plotshape(showLine2 and trend2 == -1 and trend2[1] == 1 ? down2 : na, "Line 2 Sell", shape.circle, location.absolute, color.red, size = size.tiny)
+
+[up3, down3, trend3] = supertrend(atrLength3, multiplier3)
+upLine3 = plot(showLine3 and trend3 == 1 ? up3 : na, "Line 3 Up", color.green, 2, plot.style_linebr)
+downLine3 = plot(showLine3 and trend3 == -1 ? down3 : na, "Line 3 Down", color.red, 2, plot.style_linebr)
+fill(upLine3, middle, color.new(color.green, 90))
+fill(downLine3, middle, color.new(color.red, 90))
+plotshape(showLine3 and trend3 == 1 and trend3[1] == -1 ? up3 : na, "Line 3 Buy", shape.circle, location.absolute, color.green, size = size.tiny)
+plotshape(showLine3 and trend3 == -1 and trend3[1] == 1 ? down3 : na, "Line 3 Sell", shape.circle, location.absolute, color.red, size = size.tiny)
