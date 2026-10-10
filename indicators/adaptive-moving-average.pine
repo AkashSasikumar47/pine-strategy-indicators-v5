@@ -1,0 +1,23 @@
+//@version=6
+indicator("Adaptive Moving Average", "AMA", overlay = true)
+
+length = input.int(14, "Length", minval = 1)
+fastLength = input.int(2, "Fast EMA Length", minval = 1)
+slowLength = input.int(30, "Slow EMA Length", minval = 1)
+highlightMovements = input.bool(true, "Highlight Movements")
+source = input.source(close, "Source")
+
+fastAlpha = 2.0 / (fastLength + 1)
+slowAlpha = 2.0 / (slowLength + 1)
+
+highestHigh = ta.highest(length + 1)
+lowestLow = ta.lowest(length + 1)
+priceRange = highestHigh - lowestLow
+multiplier = priceRange != 0 ? math.abs(2 * source - lowestLow - highestHigh) / priceRange : 0
+smoothing = math.pow(multiplier * (fastAlpha - slowAlpha) + slowAlpha, 2)
+
+var ama = 0.0
+ama := na(ama[1]) ? smoothing * source : smoothing * source + (1 - smoothing) * ama[1]
+
+amaColor = highlightMovements ? (ama > ama[1] ? color.rgb(40, 226, 255) : color.rgb(110, 14, 255)) : color.purple
+plot(ama, "AMA", amaColor, 2)

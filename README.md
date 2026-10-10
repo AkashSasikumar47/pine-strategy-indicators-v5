@@ -1,119 +1,103 @@
 # Pine Strategy Indicators v5
 
-## Overview
+Five open-source TradingView indicators written in Pine Script v6: Adaptive Moving Average, Chandelier Exit, Relative Momentum Index, Supertrend and Trend Strength Index. Part of [GAINZ](https://gainz-trading-indicators.vercel.app), 35 indicators across seven collections.
 
-A collection of five Pine Script technical indicators for TradingView, designed for trend analysis, momentum measurement, and dynamic stop-loss management. These indicators utilize volatility-based calculations, adaptive algorithms, and momentum oscillators to provide actionable trading signals.
+| Indicator                                           | Type       | Script                                                                    |
+| --------------------------------------------------- | ---------- | ------------------------------------------------------------------------- |
+| [Adaptive Moving Average](#adaptive-moving-average) | Trend      | [`adaptive-moving-average.pine`](indicators/adaptive-moving-average.pine) |
+| [Chandelier Exit](#chandelier-exit)                 | Volatility | [`chandelier-exit.pine`](indicators/chandelier-exit.pine)                 |
+| [Relative Momentum Index](#relative-momentum-index) | Momentum   | [`relative-momentum-index.pine`](indicators/relative-momentum-index.pine) |
+| [Supertrend](#supertrend)                           | Trend      | [`supertrend.pine`](indicators/supertrend.pine)                           |
+| [Trend Strength Index](#trend-strength-index)       | Momentum   | [`trend-strength-index.pine`](indicators/trend-strength-index.pine)       |
 
-## Included Indicators
+## Adaptive Moving Average
 
-### Supertrend Indicator
+![Adaptive Moving Average](images/adaptive-moving-average.png)
 
-**Purpose:** Identifies market trends and potential reversal points using volatility-based bands.
+A moving average that speeds up in trends and slows down in chop, blending a fast and a slow EMA.
 
-**Core Logic:** Calculates upper and lower bands using ATR (Average True Range) multiplied by a configurable factor. Supports three simultaneous Supertrend lines with independent parameters. Trend direction changes when price crosses the bands, generating buy/sell signals with visual markers.
+A rising, highlighted line means the trend is in charge. When it flattens out, the market is losing direction.
 
-**Key Parameters:**
+| Setting  | Default |
+| -------- | ------- |
+| Length   | 14      |
+| Fast EMA | 2       |
+| Slow EMA | 30      |
+| Source   | Close   |
 
-- ATR Period: 10, 11, 12 (for Lines 1, 2, 3)
-- ATR Multiplier: 1.0, 2.0, 3.0 (for Lines 1, 2, 3)
-- Line Toggles: Enable/disable individual lines
+Based on Adaptive Moving Average by everget.
 
-![Supertrend Indicator](images/Supertrend-Indicator.png)
+## Chandelier Exit
 
-**Typical Use Case:** Follow trends by buying when price is above the Supertrend line (uptrend) and selling when price falls below it (downtrend). Multiple lines provide confirmation and varying sensitivity levels.
+![Chandelier Exit](images/chandelier-exit.png)
 
----
+A trailing stop hung from the highest high, or the lowest low, by three times the ATR.
 
-### Adaptive Moving Average
+Buy and Sell labels mark the bar where price crosses the stop and the trend flips. An alert fires on every change of direction.
 
-**Purpose:** Provides a dynamic moving average that adjusts smoothing based on market efficiency.
+| Setting        | Default    |
+| -------------- | ---------- |
+| ATR period     | 22         |
+| ATR multiplier | 3.0        |
+| Labels         | Buy / Sell |
 
-**Core Logic:** Implements Kaufman's Adaptive Moving Average (KAMA) algorithm. Calculates an efficiency ratio by comparing net price change to total volatility over a period. Adjusts the smoothing constant between fast and slow EMA alphas based on this efficiency, resulting in faster response during trending markets and slower response during choppy conditions.
+Based on Chandelier Exit by everget.
 
-**Key Parameters:**
+## Relative Momentum Index
 
-- Length: 14 (lookback period for efficiency calculation)
-- Fast EMA Length: 2 (responsive smoothing constant)
-- Slow EMA Length: 30 (conservative smoothing constant)
-- Highlight Movements: Color-coded trend direction
+![Relative Momentum Index](images/relative-momentum-index.png)
 
-![Adaptive Moving Average](images/Adaptive-Moving-Average.png)
+RSI's cousin: it compares each close with the close a few bars back instead of the one just before it.
 
-**Typical Use Case:** Use as a dynamic trend filter that reduces whipsaws in sideways markets while remaining responsive to genuine trends. Price above AMA suggests uptrend; price below suggests downtrend.
+Smoother than RSI and quicker to show a trend. Breakouts above overbought or below oversold are highlighted for you.
 
----
+| Setting  | Default |
+| -------- | ------- |
+| Length   | 14      |
+| Momentum | 3       |
+| Source   | Close   |
 
-### Relative Momentum Index
+Based on Relative Momentum Index by everget.
 
-**Purpose:** Measures momentum strength by analyzing price changes over multiple periods rather than single-period shifts.
+## Supertrend
 
-**Core Logic:** Similar to RSI but replaces single-period price changes with N-period momentum changes. Calculates the ratio of average upward momentum to average downward momentum over a specified length, then normalizes to a 0-100 scale. Uses RMA (Running Moving Average) for smoothing.
+![Supertrend](images/supertrend.png)
 
-**Key Parameters:**
+Three ATR-based trend lines at different distances from price, from tight to loose.
 
-- Length: 14 (RSI-style smoothing period)
-- Momentum Length: 3 (multi-period change calculation)
-- Highlight Breakouts: Visual emphasis for overbought/oversold zones
-- Overbought Level: 70
-- Oversold Level: 30
+Green under price means up, red above means down. When all three agree the trend is strong; the tight line flips first.
 
-![Relative Momentum Index](images/Relative-Momentum-Index.png)
+| Setting | Default    |
+| ------- | ---------- |
+| Line 1  | ATR 10 × 1 |
+| Line 2  | ATR 11 × 2 |
+| Line 3  | ATR 12 × 3 |
 
-**Typical Use Case:** Identify overbought conditions (RMI > 70) suggesting potential reversals or profit-taking, and oversold conditions (RMI < 30) suggesting potential buying opportunities. Provides smoother signals than traditional RSI.
+## Trend Strength Index
 
----
+![Trend Strength Index](images/trend-strength-index.png)
 
-### Chandelier Exit
+Measures how close to a straight line price has moved over the last 30 bars, from 0 to 1.
 
-**Purpose:** Dynamic trailing stop-loss that adjusts based on ATR to protect positions while allowing room for volatility.
+Near 1, price has moved in a clean line; near 0, it has chopped back and forth with no trend worth following. It shows strength, not direction.
 
-**Core Logic:** Sets long stops at the highest high (or highest close) minus ATR multiplied by a factor, and short stops at the lowest low (or lowest close) plus ATR multiplied by a factor. Stops only move in the direction of the trend, never against it. Direction flips when price crosses the opposite stop level.
+| Setting   | Default |
+| --------- | ------- |
+| Length    | 30      |
+| Smoothing | 5       |
 
-**Key Parameters:**
+Based on Trend Strength Index by Tradingene.
 
-- ATR Period: 22 (volatility measurement length)
-- ATR Multiplier: 3.0 (stop distance from extremes)
-- Use Close Price for Extremums: True/False
-- Show Buy/Sell Labels: Visual signal markers
-- Highlight State: Color-coded trend zones
+## How to use
 
-![Chandelier Exit](images/Chandelier-Exit.png)
-
-**Typical Use Case:** Use as a trailing stop-loss mechanism that widens during high volatility and tightens during low volatility. Automatically adjusts to market conditions, reducing the risk of premature stop-outs.
-
----
-
-### Trend Strength Index
-
-**Purpose:** Quantifies the strength of a trend by comparing net price change to cumulative volatility.
-
-**Core Logic:** Calculates total volatility as the sum of absolute period-to-period price changes over N periods. Measures net price change from the current close to N periods ago. The TSI is the ratio of net change to total volatility, smoothed with a simple moving average. Higher values indicate strong directional movement relative to noise.
-
-**Key Parameters:**
-
-- Length: 30 (volatility and change calculation period)
-- Smoothing: 5 (SMA smoothing for primary TSI line)
-- Additional smoothing line: 100-period SMA for trend context
-
-![Trend Strength Index](images/Trend-Strength-Index.png)
-
-**Typical Use Case:** Assess whether a trend has conviction. Rising TSI confirms strong trends; declining TSI signals weakening momentum or potential consolidation. Compare short-term (5-period) and long-term (100-period) smoothing for trend context.
-
----
-
-## How to Use
-
-1. Open TradingView and navigate to the Pine Editor
-2. Copy the desired indicator's Pine Script code from the `indicators/` folder
-3. Paste the code into the Pine Editor
-4. Click "Add to Chart" to apply the indicator
-5. Adjust parameters through the indicator settings menu as needed
-6. Save the indicator to your TradingView library for future use
-
-All indicators are compatible with Pine Script versions 3 and 4. They can be applied to any timeframe and asset class supported by TradingView.
-
----
+1. Open the indicator's `.pine` file in `indicators/` and copy the code.
+2. In TradingView, open the Pine Editor, paste the code and save it.
+3. Click **Add to chart**, then change the defaults in the indicator's settings.
 
 ## Disclaimer
 
-These indicators are provided for educational and informational purposes only. They do not constitute financial advice or trading recommendations. Past performance of any trading strategy or indicator does not guarantee future results. Users are responsible for their own trading decisions and risk management.
+For learning and research. Indicators describe what price has done, not what it will do. Nothing here is financial advice.
+
+## License
+
+[MIT](LICENSE). Indicators based on someone else's work keep their original author's terms.

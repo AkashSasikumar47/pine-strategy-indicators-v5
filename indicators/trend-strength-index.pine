@@ -1,0 +1,12 @@
+//@version=6
+indicator("Trend Strength Index", "TSI", overlay = false)
+
+length = input.int(30, "Length", minval = 1)
+smoothing = input.int(5, "Smoothing", minval = 1)
+
+volatility = math.sum(math.abs(close[1] - close[2]), length)
+netChange = math.abs(close[1] - close[length + 1])
+tsi = volatility != 0 ? netChange / volatility : 0
+
+plot(ta.sma(tsi, smoothing), "TSI", color.red)
+plot(ta.sma(tsi, 100), "TSI Smoothed", color.black)

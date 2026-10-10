@@ -1,0 +1,46 @@
+//@version=6
+indicator("Chandelier Exit", "CE", overlay = true)
+
+length = input.int(22, "ATR Period", minval = 1)
+multiplier = input.float(3.0, "ATR Multiplier", step = 0.1)
+showLabels = input.bool(true, "Show Buy/Sell Labels")
+useClose = input.bool(true, "Use Close Price for Extremums")
+highlightState = input.bool(true, "Highlight State")
+
+atr = multiplier * ta.atr(length)
+highestClose = ta.highest(close, length)
+highestHigh = ta.highest(length)
+lowestClose = ta.lowest(close, length)
+lowestLow = ta.lowest(length)
+
+longStop = (useClose ? highestClose : highestHigh) - atr
+longStopPrev = nz(longStop[1], longStop)
+longStop := close[1] > longStopPrev ? math.max(longStop, longStopPrev) : longStop
+
+shortStop = (useClose ? lowestClose : lowestLow) + atr
+shortStopPrev = nz(shortStop[1], shortStop)
+shortStop := close[1] < shortStopPrev ? math.min(shortStop, shortStopPrev) : shortStop
+
+var int direction = 1
+direction := close > shortStopPrev ? 1 : close < longStopPrev ? -1 : direction
+
+longColor = color.green
+shortColor = color.red
+buySignal = direction == 1 and direction[1] == -1
+sellSignal = direction == -1 and direction[1] == 1
+
+longStopPlot = plot(direction == 1 ? longStop : na, "Long Stop", longColor, 2, plot.style_linebr)
+plotshape(buySignal ? longStop : na, "Long Stop Start", shape.circle, location.absolute, longColor, size = size.tiny)
+plotshape(buySignal and showLabels ? longStop : na, "Buy Label", shape.labelup, location.absolute, longColor, text = "Buy", textcolor = color.white, size = size.tiny)
+
+shortStopPlot = plot(direction == 1 ? na : shortStop, "Short Stop", shortColor, 2, plot.style_linebr)
+plotshape(sellSignal ? shortStop : na, "Short Stop Start", shape.circle, location.absolute, shortColor, size = size.tiny)
+plotshape(sellSignal and showLabels ? shortStop : na, "Sell Label", shape.labeldown, location.absolute, shortColor, text = "Sell", textcolor = color.white, size = size.tiny)
+
+midPricePlot = plot(ohlc4, "", style = plot.style_circles, display = display.none, editable = false)
+fill(midPricePlot, longStopPlot, highlightState and direction == 1 ? color.new(longColor, 90) : na, "Long State Filling")
+fill(midPricePlot, shortStopPlot, highlightState and direction == -1 ? color.new(shortColor, 90) : na, "Short State Filling")
+
+alertcondition(direction != direction[1], "Alert: CE Direction Change", "Chandelier Exit has changed direction!")
+alertcondition(buySignal, "Alert: CE Buy", "Chandelier Exit Buy!")
+alertcondition(sellSignal, "Alert: CE Sell", "Chandelier Exit Sell!")
