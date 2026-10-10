@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          if [[ "$BRANCH" =~ ^dependabot/ ]]; then exit 0; fi
+          if [[ ! "$BRANCH" =~ ^[a-z0-9-]+/[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+            echo "Branch must be <scope>/<topic>, got: $BRANCH"
+            exit 1
+          fi
+
+  pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          pattern='^[A-Z0-9-]+: .{1,75}$'
+          if [[ "$BRANCH" =~ ^dependabot/ ]]; then pattern='^[A-Z0-9-]+: .+$'; fi
+          if [[ ! "$TITLE" =~ $pattern ]]; then
+            echo "PR title must be SCOPE: change, got: $TITLE"
+            exit 1
+          fi
+
+  commit-messages:
+    if: ${{ !startsWith(github.head_ref, 'dependabot/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Check commit messages
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          failed=0
+          while IFS= read -r subject; do
+            if [[ ! "$subject" =~ ^[A-Z0-9-]+:\ .{1,75}$ ]]; then
+              echo "Invalid commit message: $subject"
+              failed=1
+            fi
+          done < <(git log --no-merges --format=%s "$BASE..$HEAD")
+          exit $failed
